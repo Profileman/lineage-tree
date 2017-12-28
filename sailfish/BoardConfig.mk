@@ -104,7 +104,6 @@ ifneq ($(filter sailfish sailfishf, $(TARGET_PRODUCT)),)
 BOARD_SEPOLICY_DIRS += device/google/marlin/sepolicy/verizon
 endif
 
-BOARD_KERNEL_CMDLINE := console=ttyHSL0,115200,n8 androidboot.console=ttyHSL0 androidboot.hardware=marlin user_debug=31 ehci-hcd.park=3 lpm_levels.sleep_disabled=1 cma=32M@0-0xffffffff loop.max_part=7
 BOARD_EGL_CFG := device/google/marlin/egl.cfg
 
 BOARD_KERNEL_BASE        := 0x80000000
