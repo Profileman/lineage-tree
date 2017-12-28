@@ -28,9 +28,6 @@ PRODUCT_SHIPPING_API_LEVEL := 25
 
 DEVICE_PACKAGE_OVERLAYS += device/google/marlin/overlay
 
-PRODUCT_ENFORCE_RRO_TARGETS := \
-    framework-res
-
 # Input device files
 PRODUCT_COPY_FILES += \
     device/google/marlin/gpio-keys.kl:$(TARGET_COPY_OUT_VENDOR)/usr/keylayout/gpio-keys.kl \
@@ -38,7 +35,8 @@ PRODUCT_COPY_FILES += \
     device/google/marlin/uinput-fpc.kl:$(TARGET_COPY_OUT_VENDOR)/usr/keylayout/uinput-fpc.kl \
     device/google/marlin/uinput-fpc.idc:$(TARGET_COPY_OUT_VENDOR)/usr/idc/uinput-fpc.idc \
     device/google/marlin/synaptics_dsxv26.idc:$(TARGET_COPY_OUT_VENDOR)/usr/idc/synaptics_dsxv26.idc \
-    device/google/marlin/vr-virtual-touchpad-1.idc:$(TARGET_COPY_OUT_VENDOR)/usr/idc/vr-virtual-touchpad-1.idc
+    frameworks/native/services/vr/virtual_touchpad/idc/vr-virtual-touchpad-0.idc:$(TARGET_COPY_OUT_VENDOR)/usr/idc/vr-virtual-touchpad-0.idc \
+    frameworks/native/services/vr/virtual_touchpad/idc/vr-virtual-touchpad-1.idc:$(TARGET_COPY_OUT_VENDOR)/usr/idc/vr-virtual-touchpad-1.idc \
 
 # copy customized media_profiles and media_codecs xmls for msm8996
 PRODUCT_COPY_FILES += \
@@ -66,6 +64,10 @@ endif
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.opengles.version=196610
 
+# b/68017541
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.qcom.adreno.qgl.ShaderStorageImageExtendedFormats=0
+
 # HWUI common settings
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.hwui.gradient_cache_size=1 \
@@ -81,15 +83,11 @@ PRODUCT_PROPERTY_OVERRIDES += \
 PRODUCT_PACKAGES += fs_config_files \
                     fs_config_dirs
 
-# TextClassifier smart selection models files
-PRODUCT_PACKAGES += \
-    textclassifier.smartselection.bundle1
-
 # Audio configuration
 USE_XML_AUDIO_POLICY_CONF := 1
 PRODUCT_COPY_FILES += \
     device/google/marlin/audio_output_policy.conf:$(TARGET_COPY_OUT_VENDOR)/etc/audio_output_policy.conf \
-    device/google/marlin/audio_effects.conf:$(TARGET_COPY_OUT_VENDOR)/etc/audio_effects.conf \
+    device/google/marlin/audio_effects.xml:$(TARGET_COPY_OUT_VENDOR)/etc/audio_effects.xml \
     device/google/marlin/mixer_paths.xml:$(TARGET_COPY_OUT_VENDOR)/etc/mixer_paths.xml \
     device/google/marlin/mixer_paths_tasha_t50.xml:$(TARGET_COPY_OUT_VENDOR)/etc/mixer_paths_tasha_t50.xml \
     device/google/marlin/aanc_tuning_mixer.txt:$(TARGET_COPY_OUT_VENDOR)/etc/aanc_tuning_mixer.txt \
@@ -104,10 +102,25 @@ PRODUCT_COPY_FILES += \
     frameworks/av/services/audiopolicy/config/r_submix_audio_policy_configuration.xml:$(TARGET_COPY_OUT_VENDOR)/etc/r_submix_audio_policy_configuration.xml \
     frameworks/av/services/audiopolicy/config/usb_audio_policy_configuration.xml:$(TARGET_COPY_OUT_VENDOR)/etc/usb_audio_policy_configuration.xml \
     frameworks/av/services/audiopolicy/config/default_volume_tables.xml:$(TARGET_COPY_OUT_VENDOR)/etc/default_volume_tables.xml \
+    frameworks/native/data/etc/android.hardware.vulkan.compute-0.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.vulkan.compute.xml \
     frameworks/native/data/etc/android.hardware.vulkan.level-0.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.vulkan.level.xml \
     frameworks/native/data/etc/android.hardware.vulkan.version-1_0_3.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.vulkan.version.xml
 
+# Enable AAudio MMAP/NOIRQ data path.
+# 2 is AAUDIO_POLICY_AUTO so it will try MMAP then fallback to Legacy path.
+PRODUCT_PROPERTY_OVERRIDES += aaudio.mmap_policy=2
+# Allow EXCLUSIVE then fall back to SHARED.
+PRODUCT_PROPERTY_OVERRIDES += aaudio.mmap_exclusive_policy=2
+
+# Increase the apparent size of a hardware burst from 1 msec to 2 msec.
+# A "burst" is the number of frames processed at one time.
+# That is an increase from 48 to 96 frames at 48000 Hz.
+# The DSP will still be bursting at 48 frames but AAudio will think the burst is 96 frames.
+# A low number, like 48, might increase power consumption or stress the system.
+PRODUCT_PROPERTY_OVERRIDES += aaudio.hw_burst_min_usec=2000
+
 PRODUCT_FULL_TREBLE_OVERRIDE := true
+PRODUCT_COMPATIBILITY_MATRIX_LEVEL_OVERRIDE := 27
 PRODUCT_PACKAGES += \
     android.hardware.audio@2.0-service \
     android.hardware.bluetooth@1.0-service \
@@ -117,9 +130,8 @@ PRODUCT_PACKAGES += \
     android.hardware.light@2.0-service \
     android.hardware.memtrack@1.0-service \
     android.hardware.nfc@1.0-service \
-    android.hardware.power@1.0-service \
+    android.hardware.power@1.1-service.marlin \
     android.hardware.sensors@1.0-service \
-    android.hardware.thermal@1.0-service \
     android.hardware.vr@1.0-service \
 
 PRODUCT_PROPERTY_OVERRIDES += ro.hardware.power=marlin
@@ -139,7 +151,7 @@ PRODUCT_PACKAGES += \
 
 # Usb HAL
 PRODUCT_PACKAGES += \
-    android.hardware.usb@1.0-service.marlin
+    android.hardware.usb@1.1-service.marlin
 
 # Audio effects
 PRODUCT_PACKAGES += \
@@ -234,10 +246,6 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.vr.high_performance.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.vr.high_performance.xml \
     frameworks/native/data/etc/android.hardware.vr.headtracking-0.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.vr.headtracking.xml \
 
-# For SPN display
-PRODUCT_COPY_FILES += \
-    device/google/marlin/spn-conf.xml:system/etc/spn-conf.xml
-
 # new gatekeeper HAL
 PRODUCT_PACKAGES += \
     android.hardware.gatekeeper@1.0-impl \
@@ -300,7 +308,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # Write Manufacturer & Model information in created media files.
 # IMPORTANT: ONLY SET THIS PROPERTY TO TRUE FOR PUBLIC DEVICES
-ifneq ($(filter lineage_sailfish% aosp_sailfish% sailfish% lineage_marlin% aosp_marlin% marlin%, $(TARGET_PRODUCT)),)
+ifneq ($(filter aicp_sailfish% aosp_sailfish% sailfish% aicp_marlin% aosp_marlin% marlin%, $(TARGET_PRODUCT)),)
 PRODUCT_PROPERTY_OVERRIDES += \
     media.recorder.show_manufacturer_and_model=true
 else
@@ -424,7 +432,7 @@ PRODUCT_PACKAGES += \
 PRODUCT_STATIC_BOOT_CONTROL_HAL := \
     bootctrl.msm8996 \
     libgptutils \
-    libsparse
+    libz
 PRODUCT_PACKAGES += \
     update_engine_sideload
 
@@ -460,10 +468,6 @@ PRODUCT_PACKAGES += \
     Tag \
     android.hardware.nfc@1.0-impl
 
-# Thermal HAL
-PRODUCT_PACKAGES += \
-    android.hardware.thermal@1.0-impl
-
 #GNSS HAL
 PRODUCT_PACKAGES += \
     android.hardware.gnss@1.0-impl
@@ -494,14 +498,6 @@ PRODUCT_PACKAGES += \
 
 # Library used for VTS tests  (only for userdebug and eng builds)
 ifneq (,$(filter userdebug eng, $(TARGET_BUILD_VARIANT)))
-# Test HAL for hwbinder performance benchmark.
-PRODUCT_PACKAGES += \
-     android.hardware.tests.libhwbinder@1.0-impl
-
-# Test HAL for FMQ performance benchmark.
-PRODUCT_PACKAGES += \
-     android.hardware.tests.msgq@1.0-impl
-
 # For VTS profiling.
 PRODUCT_PACKAGES += \
      libvts_profiling \
@@ -577,14 +573,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
 PRODUCT_SUPPORTS_VERITY_FEC := false
 endif
 
-# Add minidebug info to the system server to support diagnosing native crashes.
-ifneq (,$(filter user userdebug, $(TARGET_BUILD_VARIANT)))
-    # System server and some of its services.
-    # Note: we cannot use PRODUCT_SYSTEM_SERVER_JARS, as it has not been expanded at this point.
-    $(call add-product-dex-preopt-module-config,services,--generate-mini-debug-info)
-    $(call add-product-dex-preopt-module-config,wifi-service,--generate-mini-debug-info)
-endif
-
 # b/35633646
 # Statically linked toybox for modprobe in recovery mode
 PRODUCT_PACKAGES += \
@@ -624,7 +612,6 @@ PRODUCT_PACKAGES += \
     android.hardware.graphics.allocator@2.0.vndk-sp\
     android.hardware.graphics.mapper@2.0.vndk-sp\
     android.hardware.graphics.common@1.0.vndk-sp\
-    android.hidl.base@1.0.vndk-sp\
     libhwbinder.vndk-sp\
     libbase.vndk-sp\
     libcutils.vndk-sp\
