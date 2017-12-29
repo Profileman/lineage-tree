@@ -1,0 +1,60 @@
+# Bluetooth
+lib64/libaptX_encoder.so
+lib64/libaptXHD_encoder.so
+lib/libaptX_encoder.so
+lib/libaptXHD_encoder.so
+
+# CNE
+etc/cne/Nexus/ATT/ATT_profiles.xml
+etc/cne/Nexus/ROW/ROW_profiles.xml
+etc/cne/Nexus/VZW/VZW_profiles.xml
+
+# Hotword Enrollment
+-priv-app/HotwordEnrollmentWCD9335/HotwordEnrollmentWCD9335.apk:priv-app/HotwordEnrollmentWCD9335/HotwordEnrollmentWCD9335.apk:PRESIGNED
+
+# IMS/HD Voice
+-priv-app/CNEService/CNEService.apk
+
+# Permissions
+etc/permissions/privapp-permissions-google.xml
+etc/permissions/privapp-permissions-marlin.xml
+
+# RIL
+-priv-app/qcrilmsgtunnel/qcrilmsgtunnel.apk
+lib64/vendor.qti.atcmdfwd@1.0.so
+lib64/vendor.qti.qcril.am@1.0.so
+
+# Sprint
+-priv-app/SprintDM/SprintDM.apk
+-priv-app/SprintHM/SprintHM.apk
+
+# Vendor APKs
+-priv-app/atfwd/atfwd.apk
+-priv-app/colorservice/colorservice.apk
+-priv-app/datastatusnotification/datastatusnotification.apk
+-priv-app/embms/embms.apk
+-priv-app/fastdormancy/fastdormancy.apk
+-priv-app/ims/ims.apk
+-priv-app/imssettings/imssettings.apk
+-priv-app/QtiTelephonyService/QtiTelephonyService.apk
+-priv-app/radioconfig/radioconfig.apk
+-priv-app/RCSBootstraputil/RCSBootstraputil.apk
+-priv-app/SecureExtAuthService/SecureExtAuthService.apk
+-priv-app/shutdownlistener/shutdownlistener.apk
+-priv-app/SSRestartDetector/SSRestartDetector.apk
+-priv-app/TimeService/TimeService.apk
+
+# VZW
+-app/VZWAPNLib/VZWAPNLib.apk:app/VZWAPNLib/VZWAPNLib.apk:PRESIGNED
+etc/permissions/com.android.vzwomatrigger.xml
+etc/permissions/com.verizon.apn.xml
+etc/permissions/com.verizon.embms.xml
+etc/permissions/com.verizon.llkagent.xml
+etc/permissions/com.verizon.provider.xml
+etc/permissions/com.verizon.services.xml
+etc/permissions/vzw_sso_permissions.xml
+-framework/VerizonUnifiedSettings.jar:PRESIGNED
+-priv-app/VZWAPNService/VZWAPNService.apk:priv-app/VZWAPNService/VZWAPNService.apk:PRESIGNED
+-priv-app/VZWAVS/VZWAVS.apk:priv-app/VZWAVS/VZWAVS.apk:PRESIGNED
+-priv-app/VzwLcSilent/VzwLcSilent.apk:priv-app/VzwLcSilent/VzwLcSilent.apk:PRESIGNED
+-priv-app/VzwOmaTrigger/VzwOmaTrigger.apk:priv-app/VzwOmaTrigger/VzwOmaTrigger.apk:PRESIGNED
